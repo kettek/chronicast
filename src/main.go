@@ -20,6 +20,9 @@ along with chronicast.  If not, see <https://www.gnu.org/licenses/>.
 package main
 
 func main() {
-  c := Chronicast{ }
-  c.Go()
+	c := Chronicast{
+		alarms: make(map[string][]string),
+	}
+	c.Init()
+	c.Go()
 }

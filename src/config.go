@@ -20,26 +20,26 @@ along with chronicast.  If not, see <https://www.gnu.org/licenses/>.
 package main
 
 import (
-  "os"
-  "io/ioutil"
-  "encoding/json"
+	"encoding/json"
+	"io/ioutil"
+	"os"
 )
 
 type Config struct {
-  Address string `json:"Address"`
+	Address string `json:"Address"`
 }
 
 func (c *Config) Load() (err error) {
-  // First ensure defaults.
-  c.Address = "239.0.0.0:19919"
-  // Now load.
-  file, err := os.OpenFile("config.json", os.O_RDWR|os.O_CREATE, 0644)
-  if err != nil {
-    return
-  }
-  bytes, _ := ioutil.ReadAll(file)
+	// First ensure defaults.
+	c.Address = "239.0.0.0:19919"
+	// Now load.
+	file, err := os.OpenFile("config.json", os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return
+	}
+	bytes, _ := ioutil.ReadAll(file)
 
-  json.Unmarshal([]byte(bytes), &c)
-  // TODO: Some form of config sanity checking.
-  return
+	json.Unmarshal([]byte(bytes), &c)
+	// TODO: Some form of config sanity checking.
+	return
 }

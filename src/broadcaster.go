@@ -20,51 +20,30 @@ along with chronicast.  If not, see <https://www.gnu.org/licenses/>.
 package main
 
 import (
-	"log"
 	"net"
 )
 
-type Listener struct {
-	In         chan Message
-	Addr       *net.UDPAddr
+type Broadcaster struct {
 	Connection *net.UDPConn
+	Addr       *net.UDPAddr
 }
 
-func NewListener(address string) (listener Listener, err error) {
-	l := Listener{
-		In: make(chan Message),
-	}
-	if l.Addr, err = net.ResolveUDPAddr("udp", address); err != nil {
-		return
-	}
-
-	return l, err
-}
-
-func (l *Listener) Listen() (err error) {
-	if l.Connection, err = net.ListenMulticastUDP("udp", nil, l.Addr); err != nil {
-		return
-	}
-
-	l.Connection.SetReadBuffer(1024)
-
+func NewBroadcaster(address string) (b Broadcaster, err error) {
+	b = Broadcaster{}
+	b.Addr, err = net.ResolveUDPAddr("udp", address)
 	return
 }
 
-func (l *Listener) Loop() (err error) {
-	for {
-		buffer := make([]byte, 256)
-		bytes, _, err := l.Connection.ReadFromUDP(buffer)
-		if err != nil {
-			log.Fatal(err)
-			break
-		}
-		message, err := BytesToMessage(buffer[:bytes])
-		if err != nil {
-			log.Fatal(err)
-			break
-		}
-		l.In <- message
+func (b *Broadcaster) Open() (err error) {
+	b.Connection, err = net.DialUDP("udp", nil, b.Addr)
+	return
+}
+
+func (b *Broadcaster) Send(m Message) (err error) {
+	bytes, err := MessageToBytes(m)
+	if err != nil {
+		return
 	}
+	_, err = b.Connection.Write(bytes)
 	return
 }
